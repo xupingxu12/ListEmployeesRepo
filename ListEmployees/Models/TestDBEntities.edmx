@@ -4,16 +4,91 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="TestDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="TestDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Department">
+          <Key>
+            <PropertyRef Name="DepartmentID" />
+          </Key>
+          <Property Name="DepartmentID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="DepartmentName" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="AddedDate" Type="datetime" Nullable="false" />
+          <Property Name="UpdatedDate" Type="datetime" />
+          <Property Name="Deleted" Type="bit" Nullable="false" />
+          <Property Name="DeletedDate" Type="datetime" />
+        </EntityType>
+        <EntityType Name="Employee">
+          <Key>
+            <PropertyRef Name="EmployeeID" />
+          </Key>
+          <Property Name="EmployeeID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="SubDepartmentID" Type="int" Nullable="false" />
+          <Property Name="FirstName" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="LastName" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="Bio" Type="varchar" MaxLength="250" Nullable="false" />
+          <Property Name="ProfileImage" Type="varchar" MaxLength="50" />
+          <Property Name="FBProfileLink" Type="varchar" MaxLength="250" />
+          <Property Name="TwitterProfileLink" Type="varchar" MaxLength="250" />
+          <Property Name="AddedDate" Type="datetime" Nullable="false" />
+          <Property Name="UpdatedDate" Type="datetime" />
+          <Property Name="Deleted" Type="bit" Nullable="false" />
+          <Property Name="DeletedDate" Type="datetime" />
+        </EntityType>
+        <EntityType Name="SubDepartment">
+          <Key>
+            <PropertyRef Name="SubDepartmentID" />
+          </Key>
+          <Property Name="SubDepartmentID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="DepartmentID" Type="int" Nullable="false" />
+          <Property Name="SubDepartmentName" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="AddedDate" Type="datetime" Nullable="false" />
+          <Property Name="UpdatedDate" Type="datetime" />
+          <Property Name="Deleted" Type="bit" Nullable="false" />
+          <Property Name="DeletedDate" Type="datetime" />
+        </EntityType>
+        <Association Name="FK_Employee_Department">
+          <End Role="SubDepartment" Type="Self.SubDepartment" Multiplicity="1" />
+          <End Role="Employee" Type="Self.Employee" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SubDepartment">
+              <PropertyRef Name="SubDepartmentID" />
+            </Principal>
+            <Dependent Role="Employee">
+              <PropertyRef Name="SubDepartmentID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SubDepartment_Department">
+          <End Role="Department" Type="Self.Department" Multiplicity="1" />
+          <End Role="SubDepartment" Type="Self.SubDepartment" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Department">
+              <PropertyRef Name="DepartmentID" />
+            </Principal>
+            <Dependent Role="SubDepartment">
+              <PropertyRef Name="DepartmentID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Function Name="SelectEmployee" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="LastName" Type="varchar" Mode="In" />
           <Parameter Name="FirstName" Type="varchar" Mode="In" />
           <Parameter Name="DepartmentID" Type="int" Mode="In" />
           <Parameter Name="SubDepartmentID" Type="int" Mode="In" />
         </Function>
-        <EntityContainer Name="TestDBModelStoreContainer" />
-      </Schema>
-    </edmx:StorageModels>
+        <EntityContainer Name="TestDBModelStoreContainer">
+          <EntitySet Name="Department" EntityType="Self.Department" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Employee" EntityType="Self.Employee" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="SubDepartment" EntityType="Self.SubDepartment" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_Employee_Department" Association="Self.FK_Employee_Department">
+            <End Role="SubDepartment" EntitySet="SubDepartment" />
+            <End Role="Employee" EntitySet="Employee" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SubDepartment_Department" Association="Self.FK_SubDepartment_Department">
+            <End Role="Department" EntitySet="Department" />
+            <End Role="SubDepartment" EntitySet="SubDepartment" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="TestDBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -24,6 +99,17 @@
             <Parameter Name="DepartmentID" Mode="In" Type="Int32" />
             <Parameter Name="SubDepartmentID" Mode="In" Type="Int32" />
           </FunctionImport>
+          <EntitySet Name="Departments" EntityType="TestDBModel.Department" />
+          <EntitySet Name="Employees" EntityType="TestDBModel.Employee" />
+          <EntitySet Name="SubDepartments" EntityType="TestDBModel.SubDepartment" />
+          <AssociationSet Name="FK_SubDepartment_Department" Association="TestDBModel.FK_SubDepartment_Department">
+            <End Role="Department" EntitySet="Departments" />
+            <End Role="SubDepartment" EntitySet="SubDepartments" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Employee_Department" Association="TestDBModel.FK_Employee_Department">
+            <End Role="SubDepartment" EntitySet="SubDepartments" />
+            <End Role="Employee" EntitySet="Employees" />
+          </AssociationSet>
         </EntityContainer>
         <ComplexType Name="SelectEmployee_Result">
           <Property Type="String" Name="FirstName" Nullable="false" MaxLength="50" />
@@ -37,6 +123,74 @@
           <Property Type="Int32" Name="SubDepartmentID" Nullable="false" />
           <Property Type="String" Name="SubDepartmentName" Nullable="false" MaxLength="50" />
         </ComplexType>
+        <EntityType Name="Department">
+          <Key>
+            <PropertyRef Name="DepartmentID" />
+          </Key>
+          <Property Name="DepartmentID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="DepartmentName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="AddedDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="UpdatedDate" Type="DateTime" Precision="3" />
+          <Property Name="Deleted" Type="Boolean" Nullable="false" />
+          <Property Name="DeletedDate" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="SubDepartments" Relationship="TestDBModel.FK_SubDepartment_Department" FromRole="Department" ToRole="SubDepartment" />
+        </EntityType>
+        <EntityType Name="Employee">
+          <Key>
+            <PropertyRef Name="EmployeeID" />
+          </Key>
+          <Property Name="EmployeeID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="SubDepartmentID" Type="Int32" Nullable="false" />
+          <Property Name="FirstName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="LastName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Bio" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="ProfileImage" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="FBProfileLink" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="TwitterProfileLink" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="AddedDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="UpdatedDate" Type="DateTime" Precision="3" />
+          <Property Name="Deleted" Type="Boolean" Nullable="false" />
+          <Property Name="DeletedDate" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="SubDepartment" Relationship="TestDBModel.FK_Employee_Department" FromRole="Employee" ToRole="SubDepartment" />
+        </EntityType>
+        <EntityType Name="SubDepartment">
+          <Key>
+            <PropertyRef Name="SubDepartmentID" />
+          </Key>
+          <Property Name="SubDepartmentID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="DepartmentID" Type="Int32" Nullable="false" />
+          <Property Name="SubDepartmentName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="AddedDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="UpdatedDate" Type="DateTime" Precision="3" />
+          <Property Name="Deleted" Type="Boolean" Nullable="false" />
+          <Property Name="DeletedDate" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="Department" Relationship="TestDBModel.FK_SubDepartment_Department" FromRole="SubDepartment" ToRole="Department" />
+          <NavigationProperty Name="Employees" Relationship="TestDBModel.FK_Employee_Department" FromRole="SubDepartment" ToRole="Employee" />
+        </EntityType>
+        <Association Name="FK_SubDepartment_Department">
+          <End Type="TestDBModel.Department" Role="Department" Multiplicity="1" />
+          <End Type="TestDBModel.SubDepartment" Role="SubDepartment" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Department">
+              <PropertyRef Name="DepartmentID" />
+            </Principal>
+            <Dependent Role="SubDepartment">
+              <PropertyRef Name="DepartmentID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Employee_Department">
+          <End Type="TestDBModel.SubDepartment" Role="SubDepartment" Multiplicity="1" />
+          <End Type="TestDBModel.Employee" Role="Employee" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SubDepartment">
+              <PropertyRef Name="SubDepartmentID" />
+            </Principal>
+            <Dependent Role="Employee">
+              <PropertyRef Name="SubDepartmentID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -59,6 +213,49 @@
               </ComplexTypeMapping>
             </ResultMapping>
           </FunctionImportMapping>
+          <EntitySetMapping Name="Departments">
+            <EntityTypeMapping TypeName="TestDBModel.Department">
+              <MappingFragment StoreEntitySet="Department">
+                <ScalarProperty Name="DeletedDate" ColumnName="DeletedDate" />
+                <ScalarProperty Name="Deleted" ColumnName="Deleted" />
+                <ScalarProperty Name="UpdatedDate" ColumnName="UpdatedDate" />
+                <ScalarProperty Name="AddedDate" ColumnName="AddedDate" />
+                <ScalarProperty Name="DepartmentName" ColumnName="DepartmentName" />
+                <ScalarProperty Name="DepartmentID" ColumnName="DepartmentID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Employees">
+            <EntityTypeMapping TypeName="TestDBModel.Employee">
+              <MappingFragment StoreEntitySet="Employee">
+                <ScalarProperty Name="DeletedDate" ColumnName="DeletedDate" />
+                <ScalarProperty Name="Deleted" ColumnName="Deleted" />
+                <ScalarProperty Name="UpdatedDate" ColumnName="UpdatedDate" />
+                <ScalarProperty Name="AddedDate" ColumnName="AddedDate" />
+                <ScalarProperty Name="TwitterProfileLink" ColumnName="TwitterProfileLink" />
+                <ScalarProperty Name="FBProfileLink" ColumnName="FBProfileLink" />
+                <ScalarProperty Name="ProfileImage" ColumnName="ProfileImage" />
+                <ScalarProperty Name="Bio" ColumnName="Bio" />
+                <ScalarProperty Name="LastName" ColumnName="LastName" />
+                <ScalarProperty Name="FirstName" ColumnName="FirstName" />
+                <ScalarProperty Name="SubDepartmentID" ColumnName="SubDepartmentID" />
+                <ScalarProperty Name="EmployeeID" ColumnName="EmployeeID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="SubDepartments">
+            <EntityTypeMapping TypeName="TestDBModel.SubDepartment">
+              <MappingFragment StoreEntitySet="SubDepartment">
+                <ScalarProperty Name="DeletedDate" ColumnName="DeletedDate" />
+                <ScalarProperty Name="Deleted" ColumnName="Deleted" />
+                <ScalarProperty Name="UpdatedDate" ColumnName="UpdatedDate" />
+                <ScalarProperty Name="AddedDate" ColumnName="AddedDate" />
+                <ScalarProperty Name="SubDepartmentName" ColumnName="SubDepartmentName" />
+                <ScalarProperty Name="DepartmentID" ColumnName="DepartmentID" />
+                <ScalarProperty Name="SubDepartmentID" ColumnName="SubDepartmentID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

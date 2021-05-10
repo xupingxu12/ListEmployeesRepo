@@ -27,6 +27,9 @@ namespace ListEmployees.Models
             throw new UnintentionalCodeFirstException();
         }
     
+        public virtual DbSet<Department> Departments { get; set; }
+        public virtual DbSet<Employee> Employees { get; set; }
+        public virtual DbSet<SubDepartment> SubDepartments { get; set; }
     
         public virtual ObjectResult<SelectEmployee_Result> SelectEmployee(string lastName, string firstName, Nullable<int> departmentID, Nullable<int> subDepartmentID)
         {

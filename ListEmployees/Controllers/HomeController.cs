@@ -16,7 +16,9 @@ namespace ListEmployees.Controllers
             firstName = (firstName == null || firstName.Trim() == "") ? null : firstName.Trim();
 
             TestDBEntities _entity = new TestDBEntities();
-            return View(_entity.SelectEmployee(lastName, firstName, departmentID, subDepartmentID));
+            ViewData["deptList"] = new SelectList(_entity.Departments.ToList(), "DepartmentID", "DepartmentName");
+            ViewData["subDeptList"] = new SelectList(_entity.SubDepartments.ToList(), "SubDepartmentID", "SubDepartmentName");
+            return View(_entity.SelectEmployee(lastName, firstName, departmentID, subDepartmentID));       
         }
 
     }
